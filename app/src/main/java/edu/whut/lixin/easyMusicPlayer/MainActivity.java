@@ -13,7 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,37 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(MainActivity.this, "您选择了标题：" + names[position] + "内容：" + singers[position], Toast.LENGTH_LONG).show();
-            Log.d(TAG, "onItemClick() called with: parent = [" + parent + "], view = [" + view + "], position = [" + position + "], id = [" + id + "]");
-            Intent intent = new Intent(MainActivity.this, Lyrics.class);
-            intent.putExtra("num", position);
-            startActivity(intent);
-            musicBinder.play(position);
-        }
-    };
-
-    private View.OnClickListener buttonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Log.d(TAG, "onClick() called with: v = [" + v + "]");
-            switch (v.getId()) {
-                case R.id.pause:
-                    musicBinder.pause();
-                    break;
-                case R.id.stop:
-                    musicBinder.stop();
-                    break;
-                case R.id.play:
-                    musicBinder.replay();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    private AdapterView.OnItemClickListener itemClickListener = new ItemClickListener();
+    private View.OnClickListener buttonClickListener = new ButtonClickListener();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,4 +83,35 @@ public class MainActivity extends AppCompatActivity {
         bindService(new Intent(this, MusicService.class), connection, Context.BIND_AUTO_CREATE);
     }
 
+    class ButtonClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            Log.d(TAG, "onClick() called with: v = [" + v + "]");
+            switch (v.getId()) {
+                case R.id.pause:
+                    musicBinder.pause();
+                    break;
+                case R.id.stop:
+                    musicBinder.stop();
+                    break;
+                case R.id.play:
+                    musicBinder.play();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    class ItemClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Log.d(TAG, "onItemClick() called with: parent = [" + parent + "], view = [" + view + "], position = [" + position + "], id = [" + id + "]");
+            Intent intent = new Intent(MainActivity.this, Lyrics.class);
+            intent.putExtra("num", position);
+            startActivity(intent);
+            musicBinder.play(position);
+        }
+    }
 }

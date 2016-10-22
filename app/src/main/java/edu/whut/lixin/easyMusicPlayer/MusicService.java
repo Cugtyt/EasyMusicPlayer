@@ -10,7 +10,7 @@ import android.util.Log;
 public class MusicService extends Service {
 
     private final IBinder binder = new MusicBinder();
-    int[] mp3List = {R.raw.m1, R.raw.m2, R.raw.m3};
+    private int[] mp3List = {R.raw.m1, R.raw.m2, R.raw.m3};
     // id of song to show
     private int songId = 0;
     private MediaPlayer mediaPlayer;
@@ -40,7 +40,7 @@ public class MusicService extends Service {
 
     public class MusicBinder extends Binder {
 
-        public void play(int num) {
+        void play(int num) {
             Log.d(TAG, "play() called with: num = [" + num + "]");
             // song is changed
             if (num != songId) {
@@ -49,32 +49,27 @@ public class MusicService extends Service {
                 mediaPlayer.release();
                 mediaPlayer = MediaPlayer.create(MusicService.this, mp3List[songId]);
             }
-            mediaPlayer.setLooping(false);
-            mediaPlayer.start();
+            if (!mediaPlayer.isPlaying()) {
+                mediaPlayer.start();
+            }
         }
 
-        public void replay() {
-            Log.d(TAG, "replay() called");
-//            if (mediaPlayer.isPlaying()) {
-//                pause();
-//            }
-//            play(songId);
-            mediaPlayer = MediaPlayer.create(MusicService.this, mp3List[songId]);
-            mediaPlayer.setLooping(false);
-            mediaPlayer.start();
+        void play() {
+            play(songId);
         }
 
-        public void pause() {
+        void pause() {
             Log.d(TAG, "pause() called");
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
             }
         }
 
-        public void stop() {
+        void stop() {
             Log.d(TAG, "stop() called");
-            mediaPlayer.stop();
-            songId = 0;
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.reset();
+            }
         }
 
     }
